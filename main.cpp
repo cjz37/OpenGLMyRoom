@@ -7,13 +7,13 @@
 #include "func.h"
 #include "menu.h"
 
+
 void main(int argc, char** argv) {
-
 	InitWindow(argc, argv);
-
 	myCreateMenu();
+	guide();
 
-	//»ñÈ¡²ÄÖÊ
+	//è·å–æè´¨
 	LoadGLTextures();
 
 	glutReshapeFunc(reshape);
