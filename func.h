@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include "param.h"
-//#include "objLoader.h"
+#include "objLoader.h"
 
 #pragma warning(disable:4996)
 
@@ -22,6 +22,7 @@ void reshape(int w, int h);
 void lightInit();
 void InitWindow(int argc, char** argv);
 void refresh();
+void guide();
 
 AUX_RGBImageRec* LoadBMP(const char* Filename);
 int LoadGLTextures();
@@ -39,11 +40,16 @@ void drawBall(int x, int z, int textureIndex);
 void drawCarpet(int textureIndex);
 void drawStairs(int textureIndex);
 void drawEnclosure(int textureIndex);
-//void drawDesk(int textureIndex);
+void drawComputer(int textureIndex);
+void drawDesk(int textureIndex);
 void drawDoor(int textureIndex);
 void drawPaint(int textureIndex);
 void drawWindow();
 void drawCeiling(int textureIndex);
+void drawCurtain(int textureIndex);
+void drawFloorlamp(int textureIndex);
+void drawAirconditioner(int textureIndex);
+void drawTreebottom(int textureIndex);
 
 void keyboard(unsigned char key, int x, int y);
 void changeView();
@@ -52,7 +58,6 @@ void myScale();
 void changeViewPoint(int x, int y);
 void reset();
 
-//ObjLoader desk = ObjLoader("Res/moudel/desk.obj");
 
 void InitWindow(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -74,7 +79,7 @@ void display() {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	//lightInit();
 
-	// ”Ω«±‰ªª
+	//ËßÜËßíÂèòÊç¢
 	if (1 == viewPos)
 		gluLookAt(1.0 * cos(c * degree), 1.0 * sin(c * degree2), 1.0 * sin(c * degree), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	else if (2 == viewPos)
@@ -84,28 +89,32 @@ void display() {
 	else if (4 == viewPos)
 		gluLookAt(0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0);
 
-	//∫Ï x; ¬Ã y; ¿∂ z
-	axis();
+	//Á∫¢ x; Áªø y; Ëìù z
+	//axis();
 	drawFloor(2, floorStyle);
 	drawWall(wallStyle);
 	drawBed(-2.5, -2.9, 15, 1, 16);
 	drawWardrobe(-3.6, -4.0, wardrobeStyle, 1);
-	drawBall(1.0, -3.0, 12);
+	drawBall(0, -4.0, 12);
 	drawCarpet(carpetStyle);
 	drawStairs(stairsStyle);
-	drawEnclosure(0);
-	//drawDesk(0);
+	drawComputer(21);
+	drawDesk(20);
 	drawDoor(doorStyle);
 	drawPaint(paintStyle);
+	drawCurtain(20);
+	drawFloorlamp(20);
+	drawAirconditioner(11);
+	drawTreebottom(20);
+	drawEnclosure(0);
 	drawWindow();
 	
-
 	glFlush();
 	glutSwapBuffers();
 }
 
 void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int textureIndex3) {
-	//¥≤…Ì
+	//Â∫äË∫´
 	glBindTexture(GL_TEXTURE_2D, textureIndex1);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -116,7 +125,7 @@ void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int tex
 	glutSolidCube(1);
 	glPopMatrix();
 
-	//¥≤Õ∑πÒ
+	//Â∫äÂ§¥Êüú
 	glPushMatrix();
 	glTranslated(x + 1.9, 0.15, z - 1.55);
 	glScaled(0.8, 0.6, 0.8);
@@ -132,7 +141,7 @@ void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int tex
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 
-	//¥≤Õ∑
+	//Â∫äÂ§¥
 	glBindTexture(GL_TEXTURE_2D, textureIndex2);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -146,7 +155,7 @@ void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int tex
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 
-	//√ﬁ±ª
+	//Ê£âË¢´
 	glBindTexture(GL_TEXTURE_2D, textureIndex3);
 	clipSize = 8.0;
 	glBegin(GL_QUADS);
@@ -271,7 +280,7 @@ void drawWall0() {
 	glScalef(0.2, 10, 10);
 	glutSolidCube(1);
 	glPopMatrix();
-	//Œ∆¿Ì
+	//Á∫πÁêÜ
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 0.0); glVertex3f(-4.89, -5.0, 5.0);
 	glTexCoord2f(0.0, clipSize); glVertex3f(-4.89, 5.0, 5.0);
@@ -286,7 +295,7 @@ void drawWall1() {
 	glScalef(10, 10, 0.2);
 	glutSolidCube(1);
 	glPopMatrix();
-	//Œ∆¿Ì
+	//Á∫πÁêÜ
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 0.0); glVertex3f(-5.0, -5.0, -4.89);
 	glTexCoord2f(0.0, clipSize); glVertex3f(-5.0, 5.0, -4.89);
@@ -355,7 +364,7 @@ void drawWall3() {
 	glScalef(10, 10, 0.2);
 	glutSolidCube(1);
 	glPopMatrix();
-	//Œ∆¿Ì
+	//Á∫πÁêÜ
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 0.0); glVertex3f(-5.0, -5.0, 4.89);
 	glTexCoord2f(0.0, clipSize); glVertex3f(-5.0, 5.0, 4.89);
@@ -365,7 +374,7 @@ void drawWall3() {
 }
 
 void drawWardrobe(int x, int z, int textureIndex1, int textureIndex2) {
-	//πÒ◊”
+	//ÊüúÂ≠ê
 	glBindTexture(GL_TEXTURE_2D, textureIndex1);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -379,7 +388,7 @@ void drawWardrobe(int x, int z, int textureIndex1, int textureIndex2) {
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 
-	//∞— ÷
+	//ÊääÊâã
 	glBindTexture(GL_TEXTURE_2D, textureIndex2);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -443,7 +452,7 @@ void drawStairs(int textureIndex) {
 }
 
 void drawEnclosure(int textureIndex) {
-	//÷˘◊”
+	//Êü±Â≠ê
 	glBindTexture(GL_TEXTURE_2D, textureIndex);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -458,9 +467,9 @@ void drawEnclosure(int textureIndex) {
 
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
-	//Œß¿∏
+	//Âõ¥Ê†è
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//Õ∏√˜
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//ÈÄèÊòé
 
 	glPushMatrix();
 	glTranslated(-0.1, 0.65, -1.4);
@@ -472,15 +481,42 @@ void drawEnclosure(int textureIndex) {
 	glDisable(GL_BLEND);
 }
 
-//void drawDesk(int textureIndex) {
-//	glPushMatrix();
-//	glTranslated(0.0, 0.0, 0.0);
-//	desk.Draw();
-//	glPopMatrix();
-//}
+void drawComputer(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(3.93, -3.4, -2.1);
+	glRotated(-90.0, 0, 1.0, 0);
+	glScalef(0.1, 0.1, 0.1);
+	computerObj.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
+
+void drawDesk(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(3.93, -4.2, -1.5);
+	glRotated(-90.0, 0, 1.0, 0);
+	glScalef(0.1, 0.1, 0.1);
+	deskObj.Draw();
+	glTranslated(-10.0, 2, 20.0);
+	chairObj.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
 
 void drawDoor(int textureIndex) {
-	//√≈øÚ
+	//Èó®Ê°Ü
 	glBindTexture(GL_TEXTURE_2D, 20);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -494,7 +530,7 @@ void drawDoor(int textureIndex) {
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	
-	//√≈√Ê¿Ô
+	//Èó®Èù¢Èáå
 	glBindTexture(GL_TEXTURE_2D, textureIndex);
 	clipSize = 1.0;
 	glBegin(GL_QUADS);
@@ -503,7 +539,7 @@ void drawDoor(int textureIndex) {
 	glTexCoord2f(clipSize, clipSize); glVertex3f(-4.84, -1.5, 2.0);
 	glTexCoord2f(clipSize, 0.0); glVertex3f(-4.84, -5, 2.0);
 	glEnd();
-	//√≈√ÊÕ‚
+	//Èó®Èù¢Â§ñ
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 0.0); glVertex3f(-5.16, -5.0, 4.0);
 	glTexCoord2f(0.0, clipSize); glVertex3f(-5.16, -1.5, 4.0);
@@ -558,6 +594,67 @@ void drawCeiling(int textureIndex) {
 	glPopMatrix();
 }
 
+void drawCurtain(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(5.28, -1.5, 0.15);
+	glScalef(0.2, 0.2, 0.2);
+	//deskObj.Draw();
+	curtainoffObj.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
+
+void drawFloorlamp(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(-4, 0, 4);
+	glScalef(0.1, 0.1, 0.1);
+	floorlampObj.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
+
+void drawAirconditioner(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(2.5, 4.0, -4.7);
+	glScalef(0.1, 0.1, 0.1);
+	airconditioner.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
+
+void drawTreebottom(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(0, -5.05, 3);
+	glScalef(0.1, 0.1, 0.1);
+	treebottom.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
+
 void axis() {
 	glPushMatrix();
 	glTranslated(0, 0, 0);
@@ -581,6 +678,8 @@ void axis() {
 	glutSolidSphere(0.1, 36.0, 36.0);
 	glColor3f(1.0, 1.0, 1.0);
 }
+
+
 
 void reshape(int w, int h) {
 	glViewport(0, 0, w, h);
@@ -645,7 +744,7 @@ void changeView() {
 }
 
 void mouse(int btn, int state, int x, int y) {
-	//∑¿÷π”“º¸≤Àµ•∫Û¥•∑¢Œª“∆≤Ÿ◊˜
+	//Èò≤Ê≠¢Âè≥ÈîÆËèúÂçïÂêéËß¶Âèë‰ΩçÁßªÊìç‰Ωú
 	if (state == GLUT_DOWN)
 		isDown = true;
 	else if (state == GLUT_UP)
@@ -690,15 +789,14 @@ void changeViewPoint(int x, int y) {
 			degree2 = -45;
 		oldPosX = x;
 		oldPosY = y;
-		//cout << "degree = " << degree << " " << "k = " << (degree % 360) << endl;
 	}
 }
 
 void refresh() {
-	glutPostRedisplay();// µ ±‘À∂Ø
+	glutPostRedisplay();//ÂÆûÊó∂ËøêÂä®
 }
 
-//≥ı ºªØ≤ƒ÷ Ãÿ–‘°¢π‚‘¥°¢π‚’’ƒ£–Õ∫Õ…Ó∂»ª∫≥Â«¯
+//ÂàùÂßãÂåñÊùêË¥®ÁâπÊÄß„ÄÅÂÖâÊ∫ê„ÄÅÂÖâÁÖßÊ®°ÂûãÂíåÊ∑±Â∫¶ÁºìÂÜ≤Âå∫
 void lightInit()
 {
 	GLfloat mat_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
@@ -706,19 +804,19 @@ void lightInit()
 	GLfloat mat_specular[] = { 0.5, 0.5, 0.5, 1.0 };
 	GLfloat mat_shininess[] = { 50.0 };
 
-	GLfloat light1_ambient[] = { 0.0, 0.0, 0.0, 1.0 };  //ª∑æ≥π‚
-	GLfloat light1_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };  //¬˛∑¥…‰
-	GLfloat light1_specular[] = { 0.2, 0.1, 0.1, 1.0 };  //æµ√Ê∑¥…‰
+	GLfloat light1_ambient[] = { 0.0, 0.0, 0.0, 1.0 };  //ÁéØÂ¢ÉÂÖâ
+	GLfloat light1_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };  //Êº´ÂèçÂ∞Ñ
+	GLfloat light1_specular[] = { 0.2, 0.1, 0.1, 1.0 };  //ÈïúÈù¢ÂèçÂ∞Ñ
 	GLfloat light1_position[] = { -5.0, 5.0, 5.0, 1.0 };
 
-	GLfloat light2_ambient[] = { 0.5, 0.5, 0.5, 1.0 };  //ª∑æ≥π‚
-	GLfloat light2_diffuse[] = { 0.8, 0.2, 0.2, 1.0 };  //¬˛∑¥…‰
-	GLfloat light2_specular[] = { 1.0, 1.0, 1.0, 1.0 };  //æµ√Ê∑¥…‰
+	GLfloat light2_ambient[] = { 0.5, 0.5, 0.5, 1.0 };  //ÁéØÂ¢ÉÂÖâ
+	GLfloat light2_diffuse[] = { 0.8, 0.2, 0.2, 1.0 };  //Êº´ÂèçÂ∞Ñ
+	GLfloat light2_specular[] = { 1.0, 1.0, 1.0, 1.0 };  //ÈïúÈù¢ÂèçÂ∞Ñ
 	GLfloat light2_position[] = { 5.0, 0.0, 0.0, 1.0 };
 
-	GLfloat light3_ambient[] = { 0.5, 0.5, 0.1, 1.0 };  //ª∑æ≥π‚
-	GLfloat light3_diffuse[] = { 0.5, 0.5, 0.1, 1.0 };  //¬˛∑¥…‰
-	GLfloat light3_specular[] = { 0.2, 0.2, 0.1, 1.0 };  //æµ√Ê∑¥…‰
+	GLfloat light3_ambient[] = { 0.5, 0.5, 0.1, 1.0 };  //ÁéØÂ¢ÉÂÖâ
+	GLfloat light3_diffuse[] = { 0.5, 0.5, 0.1, 1.0 };  //Êº´ÂèçÂ∞Ñ
+	GLfloat light3_specular[] = { 0.2, 0.2, 0.1, 1.0 };  //ÈïúÈù¢ÂèçÂ∞Ñ
 	GLfloat light3_position[] = { 5.0, -10.0, -6.0, 1.0 };
 
 
@@ -758,37 +856,37 @@ void lightInit()
 	glEnable(GL_DEPTH_TEST);
 }
 
-//∂¡»°µº»ÎµƒŒ∆¿Ì
-AUX_RGBImageRec* LoadBMP(const char* Filename) //‘ÿ»ÎŒªÕºÕºœÒ
+//ËØªÂèñÂØºÂÖ•ÁöÑÁ∫πÁêÜ
+AUX_RGBImageRec* LoadBMP(const char* Filename) //ËΩΩÂÖ•‰ΩçÂõæÂõæÂÉè
 {
-	FILE* File = NULL;                             //Œƒº˛æ‰±˙
-	if (!Filename)                                //»∑±£Œƒº˛√˚“—Ã·π©
+	FILE* File = NULL;                             //Êñá‰ª∂Âè•ÊüÑ
+	if (!Filename)                                //Á°Æ‰øùÊñá‰ª∂ÂêçÂ∑≤Êèê‰æõ
 	{
 		return NULL;
 	}
-	File = fopen(Filename, "r");                   //≥¢ ‘¥Úø™Œƒº˛
+	File = fopen(Filename, "r");                   //Â∞ùËØïÊâìÂºÄÊñá‰ª∂
 	if (File)
 	{
-		fclose(File);                            //πÿ±’Œƒº˛
-		return auxDIBImageLoadA(Filename);       //‘ÿ»ÎŒªÕº≤¢∑µªÿ÷∏’Î
+		fclose(File);                            //ÂÖ≥Èó≠Êñá‰ª∂
+		return auxDIBImageLoadA(Filename);       //ËΩΩÂÖ•‰ΩçÂõæÂπ∂ËøîÂõûÊåáÈíà
 	}
-	return NULL;                              //»Áπ˚‘ÿ»Î ß∞‹£¨∑µªÿNULL
+	return NULL;                              //Â¶ÇÊûúËΩΩÂÖ•Â§±Ë¥•ÔºåËøîÂõûNULL
 }
 
-int LoadGLTextures()  //‘ÿ»ÎŒªÕº≤¢◊™ªª≥…Œ∆¿Ì
+int LoadGLTextures()  //ËΩΩÂÖ•‰ΩçÂõæÂπ∂ËΩ¨Êç¢ÊàêÁ∫πÁêÜ
 {
-	int Status = FALSE;                         //◊¥Ã¨÷∏ æ∆˜
+	int Status = FALSE;                         //Áä∂ÊÄÅÊåáÁ§∫Âô®
 	const int filenum = sizeof(filepaths) / sizeof(filepaths[0]);
-	AUX_RGBImageRec* TextureImage[filenum];         //¥¥Ω®Œ∆¿Ìµƒ¥Ê¥¢ø’º‰
-	memset(TextureImage, 0, sizeof(void*) * 1);//≥ı ºªØ
-//‘ÿ»ÎŒªÕº£¨ºÏ≤È”–Œﬁ¥ÌŒÛ£¨»Áπ˚ŒªÕº√ª’“µΩ‘ÚÕÀ≥ˆ
+	AUX_RGBImageRec* TextureImage[filenum];         //ÂàõÂª∫Á∫πÁêÜÁöÑÂ≠òÂÇ®Á©∫Èó¥
+	memset(TextureImage, 0, sizeof(void*) * 1);//ÂàùÂßãÂåñ
+//ËΩΩÂÖ•‰ΩçÂõæÔºåÊ£ÄÊü•ÊúâÊó†ÈîôËØØÔºåÂ¶ÇÊûú‰ΩçÂõæÊ≤°ÊâæÂà∞ÂàôÈÄÄÂá∫
 	for (int i = 0; i < filenum; i++) {
 		if (TextureImage[i] = LoadBMP(filepaths[i]))
 		{
 			Status = TRUE;
-			// π”√¿¥◊‘ŒªÕº ˝æ›…˙≥…µƒŒ∆¿Ì
+			//‰ΩøÁî®Êù•Ëá™‰ΩçÂõæÊï∞ÊçÆÁîüÊàêÁöÑÁ∫πÁêÜ
 			glBindTexture(GL_TEXTURE_2D, i);
-			//÷∏∂®∂˛Œ¨Œ∆¿Ì
+			//ÊåáÂÆö‰∫åÁª¥Á∫πÁêÜ
 			glTexImage2D(GL_TEXTURE_2D, 0, 3, TextureImage[i]->sizeX, TextureImage[i]->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, TextureImage[i]->data);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -797,17 +895,17 @@ int LoadGLTextures()  //‘ÿ»ÎŒªÕº≤¢◊™ªª≥…Œ∆¿Ì
 			glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 		}
 
-		if (TextureImage[i])               //Œ∆¿Ì «∑Ò¥Ê‘⁄
+		if (TextureImage[i])               //Á∫πÁêÜÊòØÂê¶Â≠òÂú®
 		{
-			if (TextureImage[i]->data)     //Œ∆¿ÌÕºœÒ «∑Ò¥Ê‘⁄
+			if (TextureImage[i]->data)     //Á∫πÁêÜÂõæÂÉèÊòØÂê¶Â≠òÂú®
 			{
-				free(TextureImage[i]->data);      // Õ∑≈Œ∆¿ÌÕºœÒ’º”√µƒƒ⁄¥Ê
+				free(TextureImage[i]->data);      //ÈáäÊîæÁ∫πÁêÜÂõæÂÉèÂç†Áî®ÁöÑÂÜÖÂ≠ò
 			}
-			free(TextureImage[i]);        // Õ∑≈ÕºœÒΩ·ππ
+			free(TextureImage[i]);        //ÈáäÊîæÂõæÂÉèÁªìÊûÑ
 		}
 	}
 
-	return Status;                   //∑µªÿStatus
+	return Status;                   //ËøîÂõûStatus
 }
 
 void reset() {
@@ -815,4 +913,15 @@ void reset() {
 	degree2 = 45;
 	disH = 0.0;
 	disV = 0.0;
+}
+
+void guide() {
+	cout << "_____________Êìç‰ΩúÊåáÂçó_____________" << endl << endl;
+	cout << " 1.ËΩ¨Êç¢ËßÜËßí: 1 2 3 4" << endl;
+	cout << " 2.ÈáçÁΩÆËßÜËßí: R" << endl;
+	cout << " 3.Ë∞ÉÊï¥‰ΩçÁΩÆ: W A S D" << endl;
+	cout << " 4.Èº†Ê†áË∞ÉÊï¥ËßÜËßí" << endl;
+	cout << " 5.Âè≥ÈîÆÂëºÂá∫ËèúÂçïË∞ÉÊï¥ÊùêË¥®ÂíåÁÅØÂÖâÊïàÊûú" << endl;
+	cout << "__________________________________" << endl;
+
 }
