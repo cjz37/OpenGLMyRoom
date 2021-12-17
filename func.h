@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+#include <GL/glut.h>
 #include <GL/glaux.h>
 #include <cstdio>
 #include <string>
@@ -28,8 +29,8 @@ AUX_RGBImageRec* LoadBMP(const char* Filename);
 int LoadGLTextures();
 
 void axis();
+void drawFloor(int textureIndex);
 void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int textureIndex3);
-void drawFloor(int fn, int textureIndex);
 void drawWall(int textureIndex);
 void drawWall0();
 void drawWall1();
@@ -50,6 +51,8 @@ void drawCurtain(int textureIndex);
 void drawFloorlamp(int textureIndex);
 void drawAirconditioner(int textureIndex);
 void drawTree(int textureIndex1, int textureIndex2);
+void drawClock(int textureIndex);
+void drawBookshelf(int textureIndex);
 
 void keyboard(unsigned char key, int x, int y);
 void changeView();
@@ -58,11 +61,10 @@ void myScale();
 void changeViewPoint(int x, int y);
 void reset(GLfloat gs);
 
-
 void InitWindow(int argc, char** argv) {
 	glutInit(&argc, argv);
-
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glShadeModel(GL_SMOOTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(w, h);
 	glutInitWindowPosition(50, 50);
 	glutCreateWindow("my room");
@@ -74,11 +76,14 @@ void display() {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_FLAT);
-	glDepthFunc(GL_LESS);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	lightInit();
-
+	//是否开灯
+	if (isLighton) {
+		glEnable(GL_LIGHT0);
+	}
+	else {
+		glDisable(GL_LIGHT0);
+	}
 	//视角变换
 	if (1 == viewPos)
 		gluLookAt(1.0 * cos(c * degree), 1.0 * sin(c * degree2), 1.0 * sin(c * degree), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -88,11 +93,14 @@ void display() {
 		gluLookAt(1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	else if (4 == viewPos)
 		gluLookAt(0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0);
-
+	else if (5 == viewPos) {
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(90.0, 1.0, 1.0, 25.0);
+		gluLookAt(10.0 * cos(c * degree), 10.0 * sin(c * degree2), 10.0 * sin(c * degree), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	}
 	//红 x; 绿 y; 蓝 z
 	//axis();
-	drawFloor(2, floorStyle);
-	drawWall(wallStyle);
 	drawBed(-2.5, -2.9, 15, 1, 16);
 	drawWardrobe(-3.6, -4.0, wardrobeStyle, 1);
 	drawBall(0, -4.0, 12);
@@ -106,10 +114,14 @@ void display() {
 	drawFloorlamp(20);
 	drawAirconditioner(11);
 	drawTree(20, 22);
+	drawFloor(floorStyle);
+	drawWall(wallStyle);
+	drawClock(14);
+	drawBookshelf(20);
 	//透明
 	drawEnclosure(0);
 	drawWindow();
-	
+
 	glFlush();
 	glutSwapBuffers();
 }
@@ -121,20 +133,20 @@ void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int tex
 	glEnable(GL_TEXTURE_GEN_T);
 
 	glPushMatrix();
-	glTranslated(x, 0.33, z);
+	glTranslated(x, 0.30, z);
 	glScalef(3, 0.6, 4);
 	glutSolidCube(1);
 	glPopMatrix();
 
 	//床头柜
 	glPushMatrix();
-	glTranslated(x + 1.9, 0.33, z - 1.55);
+	glTranslated(x + 1.9, 0.30, z - 1.55);
 	glScaled(0.8, 0.6, 0.8);
 	glutSolidCube(1);
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslated(x - 1.9, 0.33, z - 1.55);
+	glTranslated(x - 1.9, 0.30, z - 1.55);
 	glScaled(0.8, 0.6, 0.8);
 	glutSolidCube(1);
 	glPopMatrix();
@@ -160,34 +172,17 @@ void drawBed(GLfloat x, GLfloat z, int textureIndex1, int textureIndex2, int tex
 	glBindTexture(GL_TEXTURE_2D, textureIndex3);
 	clipSize = 8.0;
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 0.0); glVertex3f(-4.0, 0.64, -4.7);
-	glTexCoord2f(0.0, clipSize); glVertex3f(-4.0, 0.64, -0.9);
-	glTexCoord2f(clipSize, clipSize); glVertex3f(-1.0, 0.64, -0.9);
-	glTexCoord2f(clipSize, 0.0); glVertex3f(-1.0, 0.64, -4.7);
+	glTexCoord2f(0.0, 0.0); glVertex3f(-4.0, 0.61, -4.7);
+	glTexCoord2f(0.0, clipSize); glVertex3f(-4.0, 0.61, -0.9);
+	glTexCoord2f(clipSize, clipSize); glVertex3f(-1.0, 0.61, -0.9);
+	glTexCoord2f(clipSize, 0.0); glVertex3f(-1.0, 0.61, -4.7);
 	glEnd();
-
 }
 
-void drawFloor(int fn, int textureIndex) {
+void drawFloor(int textureIndex) {
 	glBindTexture(GL_TEXTURE_2D, textureIndex);
-	if (degree2 >= 0) {
-		if (1 == fn) {
-			//f1
-			glPushMatrix();
-			glTranslated(0, -5.1, 0);
-			glScalef(10, 0.2, 10);
-			glutSolidCube(1);
-			glPopMatrix();
-
-			clipSize = 1.5;
-			glBegin(GL_QUADS);
-			glTexCoord2f(clipSize, 0.0); glVertex3f(-5.0, 0.01, 5.0);
-			glTexCoord2f(0.0, 0.0); glVertex3f(-5.0, 0.01, -5.0);
-			glTexCoord2f(0.0, clipSize); glVertex3f(0, 0.01, -5.0);
-			glTexCoord2f(clipSize, clipSize); glVertex3f(0, 0.01, 5.0);
-			glEnd();
-		}
-		else if (2 == fn) {
+	if (1 == viewPos) {
+		if (degree2 >= 0) {
 			//f2
 			glPushMatrix();
 			glTranslated(-2.5, -0.1, 0);
@@ -217,10 +212,40 @@ void drawFloor(int fn, int textureIndex) {
 			glTexCoord2f(clipSize, clipSize); glVertex3f(5.0, -4.99, 5.0);
 			glEnd();
 		}
+		else if (degree2 < 0) {
+			//ceiling
+			drawCeiling(0);
+		}
 	}
-	else if (degree2 < 0) {
-		//ceiling
-		drawCeiling(0);
+	else {
+		//f2
+		glPushMatrix();
+		glTranslated(-2.5, -0.1, 0);
+		glScalef(5, 0.2, 10);
+		glutSolidCube(1);
+		glPopMatrix();
+
+		//f1
+		glPushMatrix();
+		glTranslated(0, -5.1, 0);
+		glScalef(10, 0.2, 10);
+		glutSolidCube(1);
+		glPopMatrix();
+
+		clipSize = 1.5;
+		glBegin(GL_QUADS);
+		glTexCoord2f(clipSize, 0.0); glVertex3f(-5.0, 0.01, 5.0);
+		glTexCoord2f(0.0, 0.0); glVertex3f(-5.0, 0.01, -5.0);
+		glTexCoord2f(0.0, clipSize); glVertex3f(0, 0.01, -5.0);
+		glTexCoord2f(clipSize, clipSize); glVertex3f(0, 0.01, 5.0);
+		glEnd();
+		clipSize = 3.0;
+		glBegin(GL_QUADS);
+		glTexCoord2f(clipSize, 0.0); glVertex3f(-5.0, -4.99, 5.0);
+		glTexCoord2f(0.0, 0.0); glVertex3f(-5.0, -4.99, -5.0);
+		glTexCoord2f(0.0, clipSize); glVertex3f(5.0, -4.99, -5.0);
+		glTexCoord2f(clipSize, clipSize); glVertex3f(5.0, -4.99, 5.0);
+		glEnd();
 	}
 }
 
@@ -411,12 +436,21 @@ void drawWardrobe(int x, int z, int textureIndex1, int textureIndex2) {
 }
 
 void drawBall(int x, int z, int textureIndex) {
+	//篮球跳动动画
+	timecnt++;
+	if (timecnt % intervel == 0) {
+		if (v <= -initV)
+			v = initV;
+		ballH += v;
+		v -= rV;
+	}
+
 	glBindTexture(GL_TEXTURE_2D, textureIndex);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
 
 	glPushMatrix();
-	glTranslated(x, -4.7, z);
+	glTranslated(x, -4.7 + ballH, z);
 	glutSolidSphere(0.3, 36.0, 36.0);
 	glPopMatrix();
 
@@ -530,7 +564,7 @@ void drawDoor(int textureIndex) {
 
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
-	
+
 	//门面里
 	glBindTexture(GL_TEXTURE_2D, textureIndex);
 	clipSize = 1.0;
@@ -670,6 +704,67 @@ void drawTree(int textureIndex1, int textureIndex2) {
 	glDisable(GL_TEXTURE_GEN_T);
 }
 
+void drawClock(int textureIndex) {
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glPushMatrix();
+	glTranslated(3.0, 1.5, 4.8);
+	glRotatef(90, 0, 1, 0);
+	glScalef(0.1, 0.1, 0.1);
+	myClock.Draw();
+	glPopMatrix();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+}
+
+void drawBookshelf(int textureIndex) {
+	glPushMatrix();
+	//bookshelf
+	glBindTexture(GL_TEXTURE_2D, textureIndex);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	glTranslated(-4.6, 2.0, 0.0);
+	glRotatef(90, 0, 1, 0);
+	glScalef(0.1, 0.1, 0.1);
+	bookshelf.Draw();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	//books1
+	glBindTexture(GL_TEXTURE_2D, 23);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	books1.Draw();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	//books2
+	glBindTexture(GL_TEXTURE_2D, 24);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	books2.Draw();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	//books3
+	glBindTexture(GL_TEXTURE_2D, 25);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
+
+	books3.Draw();
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+
+	glPopMatrix();
+}
+
 void axis() {
 	glPushMatrix();
 	glTranslated(0, 0, 0);
@@ -727,6 +822,16 @@ void keyboard(unsigned char key, int x, int y) {
 		else
 			reset(5.5);
 		break;
+	case 'l':
+		if (lightOpen) {
+			glDisable(GL_LIGHTING);
+			lightOpen = false;
+		}
+		else if (!lightOpen) {
+			glEnable(GL_LIGHTING);
+			lightOpen = true;
+		}
+		break;
 	case '1':
 		viewPos = 1;
 		reset(8.5);
@@ -742,6 +847,9 @@ void keyboard(unsigned char key, int x, int y) {
 	case '4':
 		viewPos = 4;
 		reset(5.5);
+		break;
+	case '5':
+		viewPos = 5;
 		break;
 	default:
 		break;
@@ -820,47 +928,29 @@ void refresh() {
 //初始化材质特性、光源、光照模型和深度缓冲区
 void lightInit()
 {
-	GLfloat mat_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
-	GLfloat mat_diffuse[] = { 0.8, 0.2, 0.2, 1.0 };
-	GLfloat mat_specular[] = { 0.5, 0.5, 0.5, 1.0 };
-	GLfloat mat_shininess[] = { 50.0 };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-
+	GLfloat light0_postion[] = { 10.0, 50.0, -10.0, 1.0 };
 	GLfloat light0_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
 	GLfloat light0_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light0_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat light0_position[] = { 0.0, 4.0, 0.0, 1.0 };
+	GLfloat amb[] = { 0.6, 0.6, 0.6, 1.0 };
 
-	GLfloat light1_ambient[] = { 0.0, 0.0, 0.0, 1.0 };  //环境光
-	GLfloat light1_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };  //漫反射
-	GLfloat light1_specular[] = { 0.2, 0.1, 0.1, 1.0 };  //镜面反射
-	GLfloat light1_position[] = { 0.0, 5.0, 0.0, 1.0 };
+	GLfloat spot_direction[] = { -10.0, -50.0 , 10.0 };
 
-	GLfloat spot_direction[] = { 0.0, -5.0, 0.0 };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb);
 
+	glLightfv(GL_LIGHT0, GL_POSITION, light0_postion);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
 
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light1_specular);
-	glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+	GLfloat gray[] = { 0.80f, 0.80f, 0.80f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, gray);
 
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, lightAngle);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-
+	/*glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 50.0);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);*/
 
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT1);
-	glEnable(GL_LIGHT2);
-	glEnable(GL_LIGHT3);
-	glDepthFunc(GL_LESS);
+	glEnable(GL_LIGHT0);
 }
 
 //读取导入的纹理
@@ -924,12 +1014,13 @@ void reset(GLfloat gs) {
 }
 
 void guide() {
-	cout << "_________________操作指南_________________" << endl << endl;
-	cout << " 1.转换视角: 1 2 3 4" << endl;
+	cout << "___________________操作指南___________________" << endl << endl;
+	cout << " 1.转换视角: 1 2 3 4 5" << endl;
 	cout << " 2.重置视角: R" << endl;
-	cout << " 3.调整位置: W A S D" << endl;
-	cout << " 4.鼠标调整视角" << endl;
-	cout << " 5.右键呼出菜单调整材质和灯光效果以及重置材质" << endl;
-	cout << "__________________________________________" << endl;
+	cout << " 3.开启光照: L" << endl;
+	cout << " 4.调整位置: W A S D" << endl;
+	cout << " 5.鼠标调整视角" << endl;
+	cout << " 6.右键呼出菜单调整材质和灯光效果以及重置材质" << endl;
+	cout << "______________________________________________" << endl;
 
 }
