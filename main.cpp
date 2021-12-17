@@ -10,15 +10,15 @@
 
 void main(int argc, char** argv) {
 	InitWindow(argc, argv);
+	lightInit();
 	myCreateMenu();
 	guide();
 
 	//获取材质
 	LoadGLTextures();
-
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
-	
+
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouse);
 	glutMotionFunc(changeViewPoint);
